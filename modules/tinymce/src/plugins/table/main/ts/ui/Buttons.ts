@@ -12,6 +12,7 @@ import { ClassList, getCellClassList, getTableClassList, getToolbar } from '../a
 import { Clipboard } from '../core/Clipboard';
 import { SelectionTargets, LockedDisable } from '../selection/SelectionTargets';
 import { onSetupToggle } from './ButtonToggleUtils';
+import { verticalAlignValues } from './CellAlignValues';
 
 const filterNoneItem = (list: ClassList) =>
   Arr.filter(list, (item) => Strings.isNotEmpty(item.value));
@@ -207,6 +208,27 @@ const addButtons = (editor: Editor, selectionTargets: SelectionTargets, clipboar
       onSetup: selectionTargets.onSetupCellOrRow
     });
   }
+
+  editor.ui.registry.addMenuButton('tablecellvalign', {
+    icon: 'vertical-align',
+    tooltip: 'Vertical align',
+    fetch: (callback) => {
+      callback(Arr.map(verticalAlignValues, (item): Menu.ToggleMenuItemSpec => {
+        return {
+          text: item.text,
+          type: 'togglemenuitem',
+          onAction: () => {
+            editor.execCommand('mceTableApplyCellStyle', false, {
+              'vertical-align': item.value
+            });
+          },
+          onSetup: onSetupToggle(editor, 'tablecellverticalalign', item.value)
+        };
+      }));
+    },
+    onSetup: selectionTargets.onSetupCellOrRow
+  });
+
 };
 
 const addToolbars = (editor: Editor) => {
